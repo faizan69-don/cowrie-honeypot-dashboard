@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+cowrie-env/
+.env
+*.pem
+*.key
+var/log/
+var/lib/
+cowrie.json
+cowrie_events.csv
+backups/
