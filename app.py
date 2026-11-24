@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
-
+from threat_detection import analyze_threats
 st.set_page_config(
     page_title="Cowrie Honeypot Dashboard",
     page_icon="🛡️",
@@ -181,7 +181,30 @@ session_summary = (
 
 st.metric("Unique SSH Sessions", session_summary["session"].nunique())
 st.dataframe(session_summary, use_container_width=True, hide_index=True)
+# ---------------- THREAT DETECTION ----------------
 
+st.subheader("🚨 Threat Detection & Alerts")
+st.caption("Rule-based heuristic alerts — suspicious activity indicators, not proof of compromise.")
+
+threat_df = analyze_threats(df)
+
+if threat_df.empty:
+    st.success("No events matched the current detection rules.")
+else:
+    high_alerts = len(threat_df[threat_df["Severity"] == "High"])
+    medium_alerts = len(threat_df[threat_df["Severity"] == "Medium"])
+
+    alert_col1, alert_col2 = st.columns(2)
+
+    with alert_col1:
+        st.metric("High Severity Alerts", high_alerts)
+
+    with alert_col2:
+        st.metric("Medium Severity Alerts", medium_alerts)
+
+    st.dataframe(threat_df, use_container_width=True, hide_index=True)
+
+st.divider()
 # Raw event table
 st.subheader("Event Details")
 st.dataframe(df, use_container_width=True, hide_index=True)
