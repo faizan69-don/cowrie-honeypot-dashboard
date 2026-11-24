@@ -91,3 +91,9 @@ COWRIE_DEMO_MODE=true streamlit run app.py
 ## 🎯 Project Objective
 
 To gain practical experience with SSH honeypots, Linux, Python-based security event analysis, and interactive threat visualization.
+
+## 📸 Dashboard Preview
+
+![Cowrie Honeypot Dashboard](dashboard.png)
+
+The dashboard above displays illustrative synthetic sample data.
