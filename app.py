@@ -188,21 +188,120 @@ st.caption("Rule-based heuristic alerts — suspicious activity indicators, not 
 
 threat_df = analyze_threats(df)
 
+
 if threat_df.empty:
     st.success("No events matched the current detection rules.")
 else:
     high_alerts = len(threat_df[threat_df["Severity"] == "High"])
     medium_alerts = len(threat_df[threat_df["Severity"] == "Medium"])
+    total_alerts = len(threat_df)
 
-    alert_col1, alert_col2 = st.columns(2)
+    # Alert summary metrics
+    alert_col1, alert_col2, alert_col3 = st.columns(3)
 
     with alert_col1:
-        st.metric("High Severity Alerts", high_alerts)
+        st.metric("Total Alerts", total_alerts)
 
     with alert_col2:
-        st.metric("Medium Severity Alerts", medium_alerts)
+        st.metric("High Severity", high_alerts)
 
-    st.dataframe(threat_df, use_container_width=True, hide_index=True)
+    with alert_col3:
+        st.metric("Medium Severity", medium_alerts)
+
+    st.divider()
+
+    # Alert analytics
+    st.subheader("📊 Alert Analytics")
+
+    detection_counts = (
+        threat_df.groupby("Detection")
+        .size()
+        .reset_index(name="Alerts")
+        .sort_values("Alerts", ascending=False)
+    )
+
+    severity_counts = (
+        threat_df.groupby("Severity")
+        .size()
+        .reset_index(name="Alerts")
+    )
+
+    chart_col1, chart_col2 = st.columns(2)
+
+    with chart_col1:
+        st.markdown("**Alerts by Detection Category**")
+        detection_chart = px.bar(
+            detection_counts,
+            x="Detection",
+            y="Alerts",
+            color="Alerts"
+        )
+        st.plotly_chart(detection_chart, use_container_width=True)
+
+    with chart_col2:
+        st.markdown("**Alerts by Severity**")
+        severity_chart = px.pie(
+            severity_counts,
+            names="Severity",
+            values="Alerts",
+            hole=0.45
+        )
+        st.plotly_chart(severity_chart, use_container_width=True)
+
+    # Top alert sources
+    st.subheader("🌐 Top Alert Sources")
+
+    top_ips = (
+        threat_df.groupby("Source IP")
+        .size()
+        .reset_index(name="Alerts")
+        .sort_values("Alerts", ascending=False)
+    )
+
+    st.bar_chart(top_ips.set_index("Source IP"))
+
+
+# Alert investigation
+st.subheader("🔎 Alert Investigation")
+
+filter_col1, filter_col2 = st.columns(2)
+
+with filter_col1:
+    selected_severity = st.multiselect(
+        "Filter by Severity",
+        options=sorted(threat_df["Severity"].unique()),
+        default=sorted(threat_df["Severity"].unique())
+    )
+
+with filter_col2:
+    selected_detection = st.multiselect(
+        "Filter by Detection Type",
+        options=sorted(threat_df["Detection"].unique()),
+        default=sorted(threat_df["Detection"].unique())
+    )
+
+filtered_alerts = threat_df[
+    threat_df["Severity"].isin(selected_severity)
+    & threat_df["Detection"].isin(selected_detection)
+]
+
+st.metric("Matching Alerts", len(filtered_alerts))
+
+st.dataframe(
+    filtered_alerts,
+    use_container_width=True,
+    hide_index=True
+)
+
+# Download filtered alert report
+alert_csv = filtered_alerts.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="Download Alert Report (CSV)",
+    data=alert_csv,
+    file_name="cowrie_alert_report.csv",
+    mime="text/csv"
+)
 
 st.divider()
 # Raw event table
